@@ -20,27 +20,22 @@ resource "helm_release" "karpenter" {
   repository_password = data.aws_ecrpublic_authorization_token.token.password
   chart               = "karpenter"
   version             = "v0.21.1"
-
   set {
     name  = "settings.aws.clusterName"
     value = module.eks.cluster_name
   }
-
   set {
     name  = "settings.aws.clusterEndpoint"
     value = module.eks.cluster_endpoint
   }
-
   set {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
     value = module.karpenter.irsa_arn
   }
-
   set {
     name  = "settings.aws.defaultInstanceProfile"
     value = module.karpenter.instance_profile_name
   }
-
   set {
     name  = "settings.aws.interruptionQueueName"
     value = module.karpenter.queue_name
@@ -65,7 +60,6 @@ resource "kubectl_manifest" "karpenter_provisioner" {
         name: default
       ttlSecondsAfterEmpty: 30
   YAML
-
   depends_on = [
     helm_release.karpenter
   ]
@@ -85,8 +79,23 @@ resource "kubectl_manifest" "karpenter_node_template" {
       tags:
         karpenter.sh/discovery: ${module.eks.cluster_name}
   YAML
-
   depends_on = [
     helm_release.karpenter
   ]
 }
+
+
+resource "aws_ec2_tag" "karpenter_subnets_tags" {
+  for_each    = toset(var.subnets_id)
+  resource_id = each.value
+  key         = "karpenter.sh/discovery"
+  value       = module.eks.cluster_name
+}
+
+resource "aws_ec2_tag" "karpenter_sg_tags" {
+  for_each    = toset([module.eks.node_security_group_id])
+  resource_id = each.value
+  key         = "karpenter.sh/discovery"
+  value       = module.eks.cluster_name
+}
+

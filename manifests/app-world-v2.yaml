@@ -1,0 +1,31 @@
+##################################################################################################
+# World App v2 - ERROR RATE 0% -  Will be Promoted
+##################################################################################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: world-app
+  labels:
+    app: world-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: world-app
+  template:
+    metadata:
+      labels:
+        app: world-app
+        version: v2
+    spec:
+      containers:
+        - name: world-app
+          image: docker.io/tentativafc/world-app:1.0.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PERCENTUAL_ERRO
+              value: "0"
+            - name: APP_VERSION
+              value: "2.0.0"

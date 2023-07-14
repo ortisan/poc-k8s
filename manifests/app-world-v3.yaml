@@ -1,0 +1,31 @@
+##################################################################################################
+# World App v3 - ERROR RATE 50% -  Will be Roolback
+##################################################################################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: world-app
+  labels:
+    app: world-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: world-app
+  template:
+    metadata:
+      labels:
+        app: world-app
+        version: v3
+    spec:
+      containers:
+        - name: world-app
+          image: docker.io/tentativafc/world-app:1.0.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PERCENTUAL_ERRO
+              value: "50"
+            - name: APP_VERSION
+              value: "3.0.0"

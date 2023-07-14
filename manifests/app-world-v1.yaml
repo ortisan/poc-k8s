@@ -1,0 +1,45 @@
+##################################################################################################
+# World App v1 - ERROR RATE 0 -  Will be Primary
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: world-app
+  labels:
+    service: world-app
+spec:
+  ports:
+    - port: 8080
+      name: http
+  selector:
+    app: world-app
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: world-app
+  labels:
+    app: world-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: world-app
+  template:
+    metadata:
+      labels:
+        app: world-app
+        version: v1
+    spec:
+      containers:
+        - name: world-app
+          image: docker.io/tentativafc/world-app:1.0.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PERCENTUAL_ERRO
+              value: "0"
+            - name: APP_VERSION
+              value: "1.0.0"
